@@ -1,0 +1,6 @@
+@SMSNotificationApi_HostAddress = http://localhost:5076
+
+GET {{SMSNotificationApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
