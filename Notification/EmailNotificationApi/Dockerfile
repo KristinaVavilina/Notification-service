@@ -1,7 +1,7 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-COPY ["Api/EmailNotificationApi.csproj", "Notification/EmailNotificationApi/"]
+COPY ["Api/", "Notification/EmailNotificationApi/"]
 
 RUN dotnet restore "Notification/EmailNotificationApi/EmailNotificationApi.csproj"
 
