@@ -1,0 +1,32 @@
+services:
+  email:
+    build: ./Notification/EmailNotificationApi
+    ports:
+      - "8081:80"
+    networks:
+      - webnet
+
+  messanger:
+    build: ./Notification/MessangerNotificationApi
+    ports:
+      - "8082:80"
+    networks:
+      - webnet
+
+  push:
+    build: ./Notification/PushNotificationApi
+    ports:
+      - "8083:80"
+    networks:
+      - webnet
+
+  sms:
+    build: ./Notification/SMSNotificationApi
+    ports:
+      - "8084:80"
+    networks:
+      - webnet
+
+networks:
+  webnet:
+    driver: bridge
