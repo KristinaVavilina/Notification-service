@@ -72,6 +72,15 @@ services:
     stdin_open: true
     networks:
       - webnet
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"     # порт для приложений
+      - "15672:15672"   # UI RabbitMQ
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
 
 networks:
   webnet:
