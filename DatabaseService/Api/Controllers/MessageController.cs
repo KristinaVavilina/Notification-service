@@ -41,6 +41,7 @@ namespace Api.Controllers
         [HttpPost]
         [Route("status")]
         [DataNotFoundExceptionFilter]
+        [ProducesResponseType(typeof(SetMessageStatusResponse), 200)]
         public async Task<IActionResult> SetStatus([FromBody] SetMessageStatusRequest dto)
         {
             await _messageLogicManager.UpdateStatusAsync(new MessageStatusLogic
@@ -48,7 +49,10 @@ namespace Api.Controllers
                 MessageId = dto.Id,
                 Status = dto.Status
             });
-            return Ok();
+            return Ok(new SetMessageStatusResponse
+            {
+                Success = true 
+            });
         }
 
         [HttpGet]
