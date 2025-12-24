@@ -1,4 +1,6 @@
 <Solution>
+  <Project Path="Core/Core/Core.csproj" />
+  <Project Path="Core/MessageQueueConnectionLib/MessageQueueConnectionLib.csproj" />
   <Project Path="GatewayServiceApi/Api/GatewayServiceApi.csproj" />
   <Project Path="Notification/EmailNotificationApi/Api/EmailNotificationApi.csproj" />
   <Project Path="Notification/MessangerNotificationApi/Api/MessangerNotificationApi.csproj" />
