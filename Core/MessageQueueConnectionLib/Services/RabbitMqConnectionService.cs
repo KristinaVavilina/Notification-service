@@ -1,16 +1,16 @@
-﻿using System.Text;
-using System.Text.Json;
-using MessageQueueConnectionLib.Interfaces;
+﻿using MessageQueueConnectionLib.Rabbit;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
+using System.Text;
+using System.Text.Json;
 
-namespace MessageQueueConnectionLib.Rabbit;
+namespace MessageQueueConnectionLib.Interfaces;
 
-public class RabbitMqConsumer : IMessageConsumer
+public class RabbitMqConnectionService: IMessageQueueConnectionService
 {
     private readonly RabbitMqConnectionFactory _connectionFactory;
 
-    public RabbitMqConsumer(RabbitMqConnectionFactory connectionFactory)
+    public RabbitMqConnectionService(RabbitMqConnectionFactory connectionFactory)
     {
         _connectionFactory = connectionFactory;
     }

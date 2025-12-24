@@ -6,16 +6,16 @@ using RabbitMQ.Client;
 
 namespace MessageQueueConnectionLib.Rabbit;
 
-public class RabbitMqPublisher : IMessagePublisher
+public class RabbitMqRequestService : IRabbitMqRequestService
 {
     private readonly RabbitMqConnectionFactory _connectionFactory;
 
-    public RabbitMqPublisher(RabbitMqConnectionFactory connectionFactory)
+    public RabbitMqRequestService(RabbitMqConnectionFactory connectionFactory)
     {
         _connectionFactory = connectionFactory;
     }
 
-    public Task PublishAsync<T>(string queue, T message)
+    public Task PublishAsync(string queue, MessageRequest message)
     {
         var connection = _connectionFactory.GetConnection();
         using var channel = connection.CreateModel();
