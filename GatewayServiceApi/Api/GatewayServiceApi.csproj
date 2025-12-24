@@ -11,4 +11,10 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\Core\Core.csproj" />
+    <ProjectReference Include="..\..\Libs\DatabaseConnectionLib\DatabaseConnectionLib.csproj" />
+    <ProjectReference Include="..\..\Libs\MessageQueueConnectionLib\MessageQueueConnectionLib.csproj" />
+  </ItemGroup>
+
 </Project>

@@ -1,4 +1,4 @@
-﻿using MessageQueueConnectionLib.Rabbit;
+﻿using Core.RabbitMqLogic;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System.Text;

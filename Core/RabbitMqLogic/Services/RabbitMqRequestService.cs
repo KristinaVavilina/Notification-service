@@ -1,10 +1,11 @@
 ﻿using System.Text;
 using System.Text.Json;
-using MessageQueueConnectionLib.Interfaces;
+using Core.RabbitMqLogic;
+using Core.RabbitMqLogic.Interfaces;
 using RabbitMQ.Client;
 
 
-namespace MessageQueueConnectionLib.Rabbit;
+namespace Core.RabbitMqLogic.Services;
 
 public class RabbitMqRequestService : IRabbitMqRequestService
 {
@@ -15,7 +16,7 @@ public class RabbitMqRequestService : IRabbitMqRequestService
         _connectionFactory = connectionFactory;
     }
 
-    public Task PublishAsync(string queue, MessageRequest message)
+    public Task PublishAsync<T>(string queue, T message)
     {
         var connection = _connectionFactory.GetConnection();
         using var channel = connection.CreateModel();
