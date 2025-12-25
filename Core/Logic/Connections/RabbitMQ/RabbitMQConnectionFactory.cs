@@ -1,13 +1,14 @@
 ﻿using RabbitMQ.Client;
+using Core.Logic.Connections.RabbitMQ.Interfaces;
 
-namespace Core.RabbitMqLogic;
+namespace Core.Logic.Connections.RabbitMQ;
 
-public class RabbitMqConnectionFactory
+public class RabbitMQConnectionFactory: IRabbitMQConnectionFactory
 {
     private readonly ConnectionFactory _factory;
     private IConnection? _connection;
 
-    public RabbitMqConnectionFactory(string host, string user, string pass)
+    public RabbitMQConnectionFactory(string host, string user, string pass)
     {
         _factory = new ConnectionFactory
         {

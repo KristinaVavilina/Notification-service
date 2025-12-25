@@ -1,18 +1,22 @@
-﻿using MessageQueueConnectionLib.Interfaces;
+﻿using Core.Logic.Connections.RabbitMQ;
+using Core.Logic.Connections.RabbitMQ.Interfaces;
+using MessageQueueConnectionLib.ConnectionServices.Implementations;
+using MessageQueueConnectionLib.ConnectionServices.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MessageQueueConnectionLib;
 
 public static class MessageQueueConnectionLibStartUp
 {
-    public static IServiceCollection AddMessageQueueConnectionLib(this IServiceCollection services)
+    public static IServiceCollection AddMessageQueueConnectionLib(this IServiceCollection services, string host, string user, string pass)
     {
-        //services.AddSingleton<IMessageQueueConnectionService, RabbitMqConnectionService>();
+        services.AddSingleton<IRabbitMQConnectionFactory>(new RabbitMQConnectionFactory(host, user, pass));
+
+        services.AddSingleton<IRabbitMQPublisher, RabbitMqPublisher>();
+        services.AddSingleton<IRabbitMQListener, RabbitMqListener>();
+
+        services.AddScoped<IConnectionService, ConnectionService>();
+
         return services;
     }
 }
