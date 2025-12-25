@@ -1,6 +1,15 @@
+using DatabaseConnectionLib;
+using GatewayServiceApi;
+using MessageQueueConnectionLib;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+
+builder.Services.AddHttpClient();
+builder.Services.AddDatabaseConnectionLib();
+builder.Services.AddMessageQueueConnectionLib();
+builder.Services.AddServices();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
