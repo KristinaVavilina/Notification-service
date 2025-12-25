@@ -34,6 +34,13 @@ services:
     networks:
       - webnet
 
+  database:
+    build: ./DatabaseService
+    ports:
+      - "8085:80"
+    networks:
+      - webnet
+
   postgres:
     image: postgres:17.0
     container_name: postgres
