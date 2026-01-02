@@ -12,19 +12,19 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["GatewayServiceApi/GatewayServiceApi.csproj", "GatewayServiceApi/"]
-RUN dotnet restore "./GatewayServiceApi/GatewayServiceApi.csproj"
+COPY ["DatabaseService/Api/DatabaseService.Api.csproj", "DatabaseService/Api/"]
+RUN dotnet restore "./DatabaseService/Api/DatabaseService.Api.csproj"
 COPY . .
-WORKDIR "/src/GatewayServiceApi"
-RUN dotnet build "./GatewayServiceApi.csproj" -c $BUILD_CONFIGURATION -o /app/build
+WORKDIR "/src/DatabaseService/Api"
+RUN dotnet build "./DatabaseService.Api.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 # Этот этап используется для публикации проекта службы, который будет скопирован на последний этап
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./GatewayServiceApi.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "./DatabaseService.Api.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 # Этот этап используется в рабочей среде или при запуске из VS в обычном режиме (по умолчанию, когда конфигурация отладки не используется)
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "GatewayServiceApi.dll"]
+ENTRYPOINT ["dotnet", "DatabaseService.Api.dll"]

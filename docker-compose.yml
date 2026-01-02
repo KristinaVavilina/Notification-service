@@ -1,45 +1,45 @@
 services:
-  gateway:
-    build: ./GatewayServiceApi
-    ports:
-      - "8080:80"
-    networks:
-      - webnet
+  gatewayserviceapi:
+    image: ${DOCKER_REGISTRY-}gatewayserviceapi
+    build:
+      context: .
+      dockerfile: GatewayServiceApi/Dockerfile
 
-  email:
-    build: ./Notification/EmailNotificationApi
-    ports:
-      - "8081:80"
-    networks:
-      - webnet
 
-  messanger:
-    build: ./Notification/MessangerNotificationApi
-    ports:
-      - "8082:80"
-    networks:
-      - webnet
+  emailnotificationapi:
+    image: ${DOCKER_REGISTRY-}emailnotificationapi
+    build:
+      context: .
+      dockerfile: Notification/EmailNotificationApi/Dockerfile
 
-  push:
-    build: ./Notification/PushNotificationApi
-    ports:
-      - "8083:80"
-    networks:
-      - webnet
 
-  sms:
-    build: ./Notification/SMSNotificationApi
-    ports:
-      - "8084:80"
-    networks:
-      - webnet
+  messangernotificationapi:
+    image: ${DOCKER_REGISTRY-}messangernotificationapi
+    build:
+      context: .
+      dockerfile: Notification/MessangerNotificationApi/Dockerfile
 
-  database:
-    build: ./DatabaseService
-    ports:
-      - "8085:80"
-    networks:
-      - webnet
+
+  pushnotificationapi:
+    image: ${DOCKER_REGISTRY-}pushnotificationapi
+    build:
+      context: .
+      dockerfile: Notification/PushNotificationApi/Dockerfile
+
+
+  smsnotificationapi:
+    image: ${DOCKER_REGISTRY-}smsnotificationapi
+    build:
+      context: .
+      dockerfile: Notification/SMSNotificationApi/Dockerfile
+
+
+  databaseservice.api:
+    image: ${DOCKER_REGISTRY-}databaseserviceapi
+    build:
+      context: .
+      dockerfile: DatabaseService/Api/Dockerfile
+
 
   postgres:
     image: postgres:17.0
@@ -77,18 +77,77 @@ services:
     restart: unless-stopped
     tty: true
     stdin_open: true
-    networks:
-      - webnet
+
+
   rabbitmq:
     image: rabbitmq:3-management
     container_name: rabbitmq
     ports:
-      - "5672:5672"     # порт для приложений
+      - "5672:5672"     # РїРѕСЂС‚ РґР»СЏ РїСЂРёР»РѕР¶РµРЅРёР№
       - "15672:15672"   # UI RabbitMQ
     environment:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
 
-networks:
-  webnet:
-    driver: bridge
+
+  prometheus:
+    image: prom/prometheus:v3.8.1
+    container_name: prometheus
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    ports:
+      - "9090:9090"
+
+
+  grafana:
+    image: grafana/grafana:12.3.1
+    container_name: grafana
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana_data:/var/lib/grafana
+    ports:
+      - "3000:3000"
+
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:9.2.3
+    container_name: logstash
+    volumes:
+      - ./logstash/pipeline/logstash.conf:/usr/share/logstash/pipeline/logstash.conf:ro
+    ports:
+      - "8080:8080"
+
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:9.2.3
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - es_data:/usr/share/elasticsearch/data
+    ports:
+      - "9200:9200"
+
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:9.2.3
+    container_name: kibana
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    ports:
+      - "5601:5601"
+
+
+volumes:
+  prometheus_data:
+  grafana_data:
+  es_data:
+
