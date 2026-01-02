@@ -31,7 +31,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-//app.UseHttpsRedirection(); с этой строчкой не работает prometheus
+//app.UseHttpsRedirection(); СЃ СЌС‚РѕР№ СЃС‚СЂРѕС‡РєРѕР№ РЅРµ СЂР°Р±РѕС‚Р°РµС‚ prometheus
 
 app.UseAuthorization();
 
