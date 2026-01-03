@@ -4,7 +4,7 @@ using System.Text.Json;
 
 namespace Core.Logic.Serialization;
 
-internal class MessageSerializer : IMessageSerializer
+public class MessageSerializer : IMessageSerializer
 {
     public T? Deserialize<T>(byte[] data)
     {

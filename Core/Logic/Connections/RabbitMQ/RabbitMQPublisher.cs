@@ -7,16 +7,16 @@ namespace Core.Logic.Connections.RabbitMQ;
 
 public class RabbitMqPublisher : IRabbitMQPublisher
 {
-    private readonly RabbitMQConnectionFactory _connectionFactory;
+    private readonly IRabbitMQConnectionFactory _connectionFactory;
     private readonly IMessageSerializer _serializer;
 
-    public RabbitMqPublisher(RabbitMQConnectionFactory connectionFactory, IMessageSerializer serializer)
+    public RabbitMqPublisher(IRabbitMQConnectionFactory connectionFactory, IMessageSerializer serializer)
     {
         _connectionFactory = connectionFactory;
         _serializer = serializer;
     }
 
-    public Task PublishAsync(MessageRequest message, PublishArguments arguments)
+    public Task PublishAsync<T>(T message, PublishArguments arguments)
     {
         var connection = _connectionFactory.GetConnection();
         using var channel = connection.CreateModel();

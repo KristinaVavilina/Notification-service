@@ -1,4 +1,4 @@
-﻿public class MessageRequest
+﻿public class MessageDto
 {
     public Guid Id { get; init; } = Guid.NewGuid();
 
@@ -10,6 +10,5 @@
 
     public required string Content { get; set; }
 
-    // Нужно?
-    public DateTime CreatedAt { get; init; } = DateTime.UtcNow;
+    public required Dictionary<string, string> Metadata { get; set; }
 }

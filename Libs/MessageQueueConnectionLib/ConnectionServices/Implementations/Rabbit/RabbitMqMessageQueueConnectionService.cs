@@ -4,18 +4,23 @@ using MessageQueueConnectionLib.ConnectionServices.Interfaces;
 
 namespace MessageQueueConnectionLib.ConnectionServices.Implementations;
 
-public class ConnectionService : IConnectionService
+public class RabbitMqMessageQueueConnectionService : IMessageQueueConnectionService
 {
     private readonly IRabbitMQPublisher _publisher;
+    private readonly IRabbitMQListener _listener;
     private readonly IRabbitMQConnectionFactory _connectionFactory;
 
-    public ConnectionService(IRabbitMQPublisher publisher, IRabbitMQConnectionFactory connectionFactory)
+    public RabbitMqMessageQueueConnectionService(
+        IRabbitMQPublisher publisher,
+        IRabbitMQListener listener,
+        IRabbitMQConnectionFactory connectionFactory)
     {
         _publisher = publisher;
+        _listener = listener;
         _connectionFactory = connectionFactory;
     }
 
-    public async Task SendNotificationAsync(MessageRequest request)
+    public async Task SendNotificationAsync(MessageDto request)
     {
         if (string.IsNullOrWhiteSpace(request.Recipient))
             throw new ArgumentException("Получатель не указан");
@@ -41,6 +46,13 @@ public class ConnectionService : IConnectionService
             Console.WriteLine($"[Gateway] Ошибка отправки {request.Id}: {ex.Message}");
             throw;
         }
+    }
+
+    public void Subscribe(string queueName, Func<MessageDto, Task> onMessageReceived)
+    {
+        _listener.Subscribe<MessageDto>(queueName, onMessageReceived);
+
+        Console.WriteLine($"[Service] Подписка на очередь {queueName} активирована.");
     }
 
     public bool IsConnected()

@@ -1,6 +1,7 @@
 <Solution>
   <Project Path="Core/Core.csproj" />
   <Project Path="GatewayServiceApi/Api/GatewayServiceApi.csproj" />
+  <Project Path="Libs/DatabaseConnectionLib/DatabaseConnectionLib.csproj" />
   <Project Path="Libs/MessageQueueConnectionLib/MessageQueueConnectionLib.csproj" />
   <Project Path="Notification/EmailNotificationApi/Api/EmailNotificationApi.csproj" />
   <Project Path="Notification/MessangerNotificationApi/Api/MessangerNotificationApi.csproj" />

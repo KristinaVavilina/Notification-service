@@ -4,5 +4,5 @@ namespace Core.Logic.Connections.RabbitMQ.Interfaces;
 
 public interface IRabbitMQPublisher
 {
-    Task PublishAsync(MessageRequest message, PublishArguments arguments);
+    Task PublishAsync<T>(T message, PublishArguments arguments);
 }

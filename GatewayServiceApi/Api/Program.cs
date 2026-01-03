@@ -1,4 +1,5 @@
 using DatabaseConnectionLib;
+using Core.Logic.Connections.RabbitMQ;
 using GatewayServiceApi;
 using MessageQueueConnectionLib;
 
@@ -9,6 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddHttpClient();
 builder.Services.AddDatabaseConnectionLib();
 builder.Services.AddMessageQueueConnectionLib();
+builder.Services.AddRabbitMQServices();
 builder.Services.AddServices();
 
 builder.Services.AddControllers();

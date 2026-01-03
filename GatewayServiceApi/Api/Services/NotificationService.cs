@@ -2,7 +2,6 @@
 using DatabaseConnectionLib.Models.StoreMessage;
 using GatewayServiceApi.Interfaces;
 using GatewayServiceApi.Models;
-using MessageQueueConnectionLib;
 using MessageQueueConnectionLib.ConnectionServices.Interfaces;
 
 namespace GatewayServiceApi.Services;
@@ -10,11 +9,11 @@ namespace GatewayServiceApi.Services;
 public class NotificationService : INotificationService
 {
     private readonly IDatabaseConnectionService _databaseService;
-    private readonly IConnectionService _messageQueueService;
+    private readonly IMessageQueueConnectionService _messageQueueService;
 
     public NotificationService(
         IDatabaseConnectionService databaseService,
-        IConnectionService messageQueueService)
+        IMessageQueueConnectionService messageQueueService)
     {
         _databaseService = databaseService;
         _messageQueueService = messageQueueService;
@@ -32,14 +31,14 @@ public class NotificationService : INotificationService
             Metadata = dto.Metadata,
             Recipient = dto.Recipient
         });
-        _messageQueueService.SendNotificationAsync(new MessageRequest
+        await _messageQueueService.SendNotificationAsync(new MessageDto
         {
             Id = id,
             ChannelType = dto.ChannelType,
             Content = dto.Content,
             Recipient = dto.Recipient,
             Subject = dto.Subject,
-            CreatedAt = DateTime.UtcNow
+            Metadata = new Dictionary<string, string>()
         });
         return id;
     }

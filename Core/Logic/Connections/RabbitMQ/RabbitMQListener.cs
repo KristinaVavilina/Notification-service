@@ -15,7 +15,7 @@ public class RabbitMqListener : IRabbitMQListener, IDisposable
         _serializer = serializer;
     }
 
-    public void Subscribe(string queue, Func<MessageRequest, Task> handler)
+    public void Subscribe<T>(string queue, Func<T, Task> handler)
     {
         var connection = _connectionFactory.GetConnection();
 
@@ -27,7 +27,7 @@ public class RabbitMqListener : IRabbitMQListener, IDisposable
         consumer.Received += async (model, ea) =>
         {
             var body = ea.Body.ToArray();
-            var message = _serializer.Deserialize<MessageRequest>(body);
+            var message = _serializer.Deserialize<T>(body);
 
             if (message != null)
             {
@@ -52,7 +52,7 @@ public class RabbitMqListener : IRabbitMQListener, IDisposable
         _channel.BasicConsume(queue, autoAck: false, consumer);
     }
 
-    public void Dispose() // Нужен?
+    public void Dispose()
     {
         _channel?.Close();
         _channel?.Dispose();

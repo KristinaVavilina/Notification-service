@@ -2,5 +2,5 @@
 
 public interface IRabbitMQListener
 {
-    void Subscribe(string queue, Func<MessageRequest, Task> handler);
+    void Subscribe<T>(string queue, Func<T, Task> handler);
 }
