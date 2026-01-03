@@ -38,7 +38,7 @@ public class NotificationService : INotificationService
             Content = dto.Content,
             Recipient = dto.Recipient,
             Subject = dto.Subject,
-            Metadata = new Dictionary<string, string>()
+            Metadata = dto.Metadata
         });
         return id;
     }
