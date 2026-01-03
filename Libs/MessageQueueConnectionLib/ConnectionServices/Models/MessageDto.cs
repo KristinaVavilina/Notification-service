@@ -1,6 +1,6 @@
-﻿public class MessageRequest
+﻿public class MessageDto
 {
-    public Guid Id { get; set; }
+    public Guid Id { get; init; } = Guid.NewGuid();
 
     public required string ChannelType { get; set; }
 
@@ -9,4 +9,6 @@
     public string? Subject { get; set; }
 
     public required string Content { get; set; }
+
+    public required Dictionary<string, string> Metadata { get; set; }
 }

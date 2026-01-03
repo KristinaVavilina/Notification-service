@@ -7,7 +7,7 @@ public static class ApiStartUp
 {
     public static IServiceCollection AddServices(this IServiceCollection services)
     {
-        services.AddSingleton<INotificationService, NotificationService>();
+        services.AddScoped<INotificationService, NotificationService>();
         return services;
     }
 }
