@@ -2,6 +2,7 @@
 using Core.Logic.Connections.RabbitMQ.Models;
 using Core.Logic.Serialization.Interfaces;
 using RabbitMQ.Client;
+using System.Threading.Channels;
 
 namespace Core.Logic.Connections.RabbitMQ;
 
@@ -25,6 +26,10 @@ public class RabbitMqPublisher : IRabbitMQPublisher
 
         var props = arguments.Properties ?? channel.CreateBasicProperties();
         props.Persistent = true;
+
+        channel.ExchangeDeclare(exchange: arguments.ExchangeName, type: ExchangeType.Direct);
+        channel.QueueDeclare(queue: arguments.RoutingKey, durable: true, exclusive: false, autoDelete: false);
+        channel.QueueBind(queue: arguments.RoutingKey, exchange: arguments.ExchangeName, routingKey: arguments.RoutingKey);
 
         channel.BasicPublish(
             exchange: arguments.ExchangeName,

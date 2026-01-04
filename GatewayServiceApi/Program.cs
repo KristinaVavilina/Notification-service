@@ -33,8 +33,6 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-//app.UseHttpsRedirection(); с этой строчкой не работает prometheus
-
 app.UseAuthorization();
 
 app.MapControllers();

@@ -7,11 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-<<<<<<<< HEAD:DatabaseService/Logic/DatabaseService.Logic.csproj
     <ProjectReference Include="..\Dal\DatabaseService.Dal.csproj" />
-========
     <ProjectReference Include="..\..\Core\Core.csproj" />
->>>>>>>> message-queue:GatewayServiceApi/DatabaseConnectionLib.csproj
   </ItemGroup>
 
 </Project>

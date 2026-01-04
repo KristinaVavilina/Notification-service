@@ -8,7 +8,7 @@ public static class MessageQueueConnectionLibStartUp
 {
     public static IServiceCollection AddMessageQueueConnectionLib(this IServiceCollection services)
     {
-        services.AddScoped<IMessageQueueConnectionService, RabbitMqMessageQueueConnectionService>();
+        services.AddSingleton<IMessageQueueConnectionService, RabbitMqMessageQueueConnectionService>();
 
         return services;
     }
