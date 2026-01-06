@@ -1,7 +1,7 @@
 using Core.Logic.Connections.RabbitMQ;
+using EmailNotificationApi.Interfaces;
 using EmailNotificationApi.Listeners.RabbitMQ;
 using MessageQueueConnectionLib;
-using Microsoft.Extensions.Hosting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +14,8 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddRabbitMQServices();
 builder.Services.AddMessageQueueConnectionLib();
+//// Регистрация сервиса отправки почты
+//builder.Services.AddTransient<IEmailService, SmtpEmailService>();
 builder.Services.AddHostedService<NotificationRabbitMQListener>();
 
 var app = builder.Build();
