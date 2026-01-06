@@ -14,14 +14,6 @@ public class RabbitMQConnectionFactory : IRabbitMQConnectionFactory
     {
         _configuration = configuration;
 
-        var HostName = _configuration.GetValue<string>("RabbitMq:HostName");
-        var UserName = _configuration.GetValue<string>("RabbitMq:UserName");
-        var Password = _configuration.GetValue<string>("RabbitMq:Password");
-
-        var Port = _configuration.GetValue<int>("RabbitMq:Port");
-
-        var VirtualHost = _configuration.GetValue<string>("RabbitMq:VirtualHost") ?? "/";
-
         _factory = new ConnectionFactory
         {
             HostName = _configuration.GetValue<string>("RabbitMq:HostName"),

@@ -1,5 +1,4 @@
-﻿
-using EmailNotificationApi.Interfaces;
+﻿using EmailNotificationApi.Interfaces;
 using MessageQueueConnectionLib.ConnectionServices.Interfaces;
 
 namespace EmailNotificationApi.Listeners.RabbitMQ;
@@ -7,55 +6,50 @@ namespace EmailNotificationApi.Listeners.RabbitMQ;
 public class NotificationRabbitMQListener : BackgroundService
 {
     private IMessageQueueConnectionService _messageQueueConnectionService;
-    //private readonly IServiceProvider _serviceProvider; // Нужно для создания scope
+    private readonly IServiceProvider _serviceProvider;
+    private readonly IConfiguration _configuration;
 
-    //public NotificationRabbitMQListener(
-    //    IMessageQueueConnectionService messageQueueConnectionService,
-    //    IServiceProvider serviceProvider)
-    //{
-    //    _messageQueueConnectionService = messageQueueConnectionService;
-    //    _serviceProvider = serviceProvider;
-    //}
-
-    public NotificationRabbitMQListener(IMessageQueueConnectionService messageQueueConnectionService)
+    public NotificationRabbitMQListener(
+        IMessageQueueConnectionService messageQueueConnectionService,
+        IServiceProvider serviceProvider,
+        IConfiguration configuration)
     {
         _messageQueueConnectionService = messageQueueConnectionService;
+        _serviceProvider = serviceProvider;
+        _configuration = configuration;
     }
 
     private async Task HandleNotificationAsync(MessageDto messageDto)
     {
-        //// Создаем область видимости (Scope), так как BackgroundService - это Singleton,
-        //// а EmailService может быть Scoped или Transient.
-        //using (var scope = _serviceProvider.CreateScope())
-        //{
-        //    var emailService = scope.ServiceProvider.GetRequiredService<IEmailService>();
+        using (var scope = _serviceProvider.CreateScope())
+        {
+            var emailService = scope.ServiceProvider.GetRequiredService<IEmailService>();
 
-        //    try
-        //    {
-        //        Console.WriteLine($"Отправка письма для: {"krvaviliii@gmail.com"}...");
+            try
+            {
+                Console.WriteLine($"Отправка письма для: {messageDto.Recipient}...");
 
-        //        // Предполагаем, что в MessageDto есть поля Email, Subject и Content
-        //        await emailService.SendEmailAsync(
-        //            "krvaviliii@gmail.com",
-        //            "Уведомление",
-        //            $"Привет! Это сообщение из RabbitMQ: {messageDto.Content}"
-        //        );
+                await emailService.SendEmailAsync(
+                    messageDto.Recipient,
+                    messageDto.Subject ?? "Уведомление",
+                    messageDto.Content
+                );
 
-        //        Console.WriteLine("Письмо успешно отправлено!");
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Console.WriteLine($"Ошибка отправки: {ex.Message}");
-        //        // Здесь можно добавить логику повторной отправки или логирование ошибки
-        //    }
-        //}
+                Console.WriteLine("Письмо успешно отправлено!");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Ошибка отправки: {ex.Message}");
+            }
+        }
     }
 
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
     {
         stoppingToken.ThrowIfCancellationRequested();
 
-        _messageQueueConnectionService.Subscribe("string", HandleNotificationAsync);
+        var channel = _configuration.GetValue<string>("ChannelName") ?? "default_queue"; ;
+        _messageQueueConnectionService.Subscribe(channel, HandleNotificationAsync);
 
         return Task.CompletedTask;
     }
