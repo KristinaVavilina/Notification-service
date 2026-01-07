@@ -19,16 +19,16 @@ public class NotificationRabbitMQListener : BackgroundService
         _configuration = configuration;
     }
 
-    private async Task HandleNotificationAsync(MessageDto messageDto)
+    private async Task<SendNotificationResponse> HandleNotificationAsync(SendNotificationRequest messageDto)
     {
         using (var scope = _serviceProvider.CreateScope())
         {
             var emailService = scope.ServiceProvider.GetRequiredService<IEmailService>();
 
+            Console.WriteLine($"Отправка письма для: {messageDto.Recipient}...");
+
             try
             {
-                Console.WriteLine($"Отправка письма для: {messageDto.Recipient}...");
-
                 await emailService.SendEmailAsync(
                     messageDto.Recipient,
                     messageDto.Subject ?? "Уведомление",
@@ -36,20 +36,21 @@ public class NotificationRabbitMQListener : BackgroundService
                 );
 
                 Console.WriteLine("Письмо успешно отправлено!");
+                return SendNotificationResponse.Success(messageDto.Id);
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Ошибка отправки: {ex.Message}");
+                return SendNotificationResponse.Failure(ex.Message, messageDto.Id);
             }
         }
     }
 
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
     {
+        var channel = _configuration.GetValue<string>("ChannelName") ?? "default_queue";
         stoppingToken.ThrowIfCancellationRequested();
-
-        var channel = _configuration.GetValue<string>("ChannelName") ?? "default_queue"; ;
-        _messageQueueConnectionService.Subscribe(channel, HandleNotificationAsync);
+        _messageQueueConnectionService.Subscribe<SendNotificationRequest, SendNotificationResponse>(channel, HandleNotificationAsync);
 
         return Task.CompletedTask;
     }

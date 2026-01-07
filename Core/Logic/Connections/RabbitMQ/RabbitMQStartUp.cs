@@ -1,7 +1,10 @@
-﻿using Core.Logic.Connections.RabbitMQ.Interfaces;
+﻿using Core.Logic.Connections.RabbitMQ.Generators.CorrelationId;
+using Core.Logic.Connections.RabbitMQ.Generators.QueueName;
+using Core.Logic.Connections.RabbitMQ.Interfaces;
 using Core.Logic.Serialization;
 using Core.Logic.Serialization.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
+using System.Reflection.Emit;
 
 namespace Core.Logic.Connections.RabbitMQ;
 
@@ -12,8 +15,11 @@ public static class RabbitMQStartUp
         services.AddSingleton<IRabbitMQConnectionFactory, RabbitMQConnectionFactory>();
         services.AddSingleton<IMessageSerializer, MessageSerializer>();
 
-        services.AddSingleton<IRabbitMQPublisher, RabbitMqPublisher>();
-        services.AddSingleton<IRabbitMQListener, RabbitMqListener>();
+        services.AddSingleton<ICorrelationIdGenerator, CorrelationIdGenerator>();
+        services.AddSingleton<IQueueNameGenerator, QueueNameGenerator>();
+
+        services.AddSingleton<IRabbitMQPublisher, RabbitMQPublisher>();
+        services.AddSingleton<IRabbitMQListener, RabbitMQListener>();  
 
         return services;
     }

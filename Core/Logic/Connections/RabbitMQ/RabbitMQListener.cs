@@ -1,60 +1,67 @@
-﻿using Core.Logic.Connections.RabbitMQ.Interfaces;
+﻿using Core.Logic.Connections.RabbitMQ.Generators.QueueName;
+using Core.Logic.Connections.RabbitMQ.Interfaces;
 using Core.Logic.Serialization.Interfaces;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 
-public class RabbitMqListener : IRabbitMQListener, IDisposable
-{
-    private readonly IRabbitMQConnectionFactory _connectionFactory;
-    private readonly IMessageSerializer _serializer;
-    private IModel? _channel;
+namespace Core.Logic.Connections.RabbitMQ;
 
-    public RabbitMqListener(IRabbitMQConnectionFactory connectionFactory, IMessageSerializer serializer)
+internal class RabbitMQListener : IRabbitMQListener
+{
+    private readonly IRabbitMQConnectionFactory _connection;
+    private readonly IRabbitMQPublisher _publisher;
+    private readonly IMessageSerializer _serializer;
+    private IModel _channel;
+
+    public RabbitMQListener(IRabbitMQPublisher publisher,
+        IRabbitMQConnectionFactory connection,
+        IMessageSerializer serializer)
     {
-        _connectionFactory = connectionFactory;
+        _publisher = publisher;
+        _connection = connection;
         _serializer = serializer;
     }
 
-    public void Subscribe<T>(string queue, Func<T, Task> handler)
+    public void StartListening<TRequest, TResponse>(string queueName, Func<TRequest, Task<TResponse>> handler)
     {
-        var connection = _connectionFactory.GetConnection();
-
+        var connection = _connection.GetConnection();
         _channel = connection.CreateModel();
-        _channel.BasicQos(prefetchSize: 0, prefetchCount: 1, global: false);
-        _channel.QueueDeclare(queue, durable: true, exclusive: false, autoDelete: false);
-
         var consumer = new AsyncEventingBasicConsumer(_channel);
-        consumer.Received += async (model, ea) =>
+        _channel.QueueDeclare(queueName, durable: true, exclusive: false, autoDelete: false);
+        consumer.Received += async (model, args) =>
         {
-            var body = ea.Body.ToArray();
-            var message = _serializer.Deserialize<T>(body);
-
-            if (message != null)
+            try
             {
-                try
-                {
-                    await handler(message);
-                    _channel.BasicAck(ea.DeliveryTag, multiple: false);
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Ошибка обработки: {ex.Message}");
-
-                    _channel.BasicNack(ea.DeliveryTag, multiple: false, requeue: true);
-                }
+                await HandleRequestAsync(args, handler);
+                _channel.BasicAck(args.DeliveryTag, multiple: false);
             }
-            else
+            catch (Exception ex)
             {
-                _channel.BasicAck(ea.DeliveryTag, multiple: false);
+                Console.WriteLine($"Error processing message: {ex.Message}");
+                _channel.BasicAck(args.DeliveryTag, multiple: false);
             }
         };
 
-        _channel.BasicConsume(queue, autoAck: false, consumer);
+        _channel.BasicConsume(queue: queueName, autoAck: false, consumer: consumer);
     }
 
-    public void Dispose()
+    private async Task HandleRequestAsync<TRequest, TResponse>(BasicDeliverEventArgs args, Func<TRequest, Task<TResponse>> handler)
     {
-        _channel?.Close();
-        _channel?.Dispose();
+        var queueName = args.BasicProperties.ReplyTo;
+        var request = _serializer.Deserialize<TRequest>(args.Body.ToArray());
+        if (request is null)
+        {
+            throw new NotImplementedException();
+        }
+        var response = await handler(request);
+        var properties = _channel.CreateBasicProperties();
+        properties.CorrelationId = args.BasicProperties.CorrelationId;
+        Console.WriteLine(args.BasicProperties.CorrelationId);
+        _publisher.Publish(response, _channel, new Models.PublishArguments()
+        {
+            ExchangeName = "",
+            RoutingKey = queueName,
+            Properties = properties
+        });
     }
 }

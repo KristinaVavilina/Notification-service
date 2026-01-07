@@ -2,9 +2,7 @@
 
 public interface IMessageQueueConnectionService
 {
-    Task SendNotificationAsync(MessageDto request);
+    Task<SendNotificationResponse> SendNotificationAsync(SendNotificationRequest request);
 
-    void Subscribe(string queueName, Func<MessageDto, Task> onMessageReceived);
-
-    bool IsConnected();
+    void Subscribe<TRequest, TResponse>(string queueName, Func<TRequest, Task<TResponse>> handler);
 }

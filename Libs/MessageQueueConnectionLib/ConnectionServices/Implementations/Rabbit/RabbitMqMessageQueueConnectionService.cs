@@ -8,23 +8,15 @@ public class RabbitMqMessageQueueConnectionService : IMessageQueueConnectionServ
 {
     private readonly IRabbitMQPublisher _publisher;
     private readonly IRabbitMQListener _listener;
-    private readonly IRabbitMQConnectionFactory _connectionFactory;
 
-    public RabbitMqMessageQueueConnectionService(
-        IRabbitMQPublisher publisher,
-        IRabbitMQListener listener,
-        IRabbitMQConnectionFactory connectionFactory)
+    public RabbitMqMessageQueueConnectionService(IRabbitMQPublisher publisher, IRabbitMQListener listener)
     {
         _publisher = publisher;
         _listener = listener;
-        _connectionFactory = connectionFactory;
     }
 
-    public async Task SendNotificationAsync(MessageDto request)
+    public async Task<SendNotificationResponse> SendNotificationAsync(SendNotificationRequest request)
     {
-        if (string.IsNullOrWhiteSpace(request.Recipient))
-            throw new ArgumentException("Получатель не указан");
-
         var exchangeName = "notifications.direct";
         var routingKey = request.ChannelType.ToLower();
 
@@ -35,36 +27,18 @@ public class RabbitMqMessageQueueConnectionService : IMessageQueueConnectionServ
             Properties = null
         };
 
-        Console.WriteLine($"[Gateway] Отправка сообщения {request.Id} в канал {routingKey}");
-
         try
         {
-            await _publisher.PublishAsync(request, arguments);
+            return await _publisher.SendAsync<SendNotificationRequest, SendNotificationResponse>(request, arguments, CancellationToken.None);
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"[Gateway] Ошибка отправки {request.Id}: {ex.Message}");
-            throw;
+            return SendNotificationResponse.Failure(ex.Message, request.Id);
         }
     }
 
-    public void Subscribe(string queueName, Func<MessageDto, Task> onMessageReceived)
+    public void Subscribe<TRequest, TResponse>(string queueName, Func<TRequest, Task<TResponse>> handler)
     {
-        _listener.Subscribe<MessageDto>(queueName, onMessageReceived);
-
-        Console.WriteLine($"[Service] Подписка на очередь {queueName} активирована.");
-    }
-
-    public bool IsConnected()
-    {
-        try
-        {
-            var connection = _connectionFactory.GetConnection();
-            return connection.IsOpen;
-        }
-        catch
-        {
-            return false;
-        }
+        _listener.StartListening(queueName, handler);
     }
 }

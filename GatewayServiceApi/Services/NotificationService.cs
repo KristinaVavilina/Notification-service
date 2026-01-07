@@ -31,7 +31,7 @@ public class NotificationService : INotificationService
             Metadata = dto.Metadata,
             Recipient = dto.Recipient
         });
-        await _messageQueueService.SendNotificationAsync(new MessageDto
+        await _messageQueueService.SendNotificationAsync(new SendNotificationRequest
         {
             Id = id,
             ChannelType = dto.ChannelType,
