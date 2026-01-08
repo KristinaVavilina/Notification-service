@@ -1,5 +1,4 @@
 ﻿using Core.Logic.Connections.RabbitMQ.Generators.CorrelationId;
-using Core.Logic.Connections.RabbitMQ.Generators.QueueName;
 using Core.Logic.Connections.RabbitMQ.Interfaces;
 using Core.Logic.Connections.RabbitMQ.Models;
 using Core.Logic.Serialization.Interfaces;
@@ -14,17 +13,14 @@ internal class RabbitMQPublisher : IRabbitMQPublisher
     private readonly string _responseQueueName;
     private readonly IModel _channel;
     private readonly ICorrelationIdGenerator _idGenerator;
-    private readonly IQueueNameGenerator _nameGenerator;
     private readonly IMessageSerializer _serializer;
     private readonly CallbackMapper _mapper;
 
     public RabbitMQPublisher(ICorrelationIdGenerator idGenerator,
-        IQueueNameGenerator nameGenerator,
         IMessageSerializer serializer,
         IRabbitMQConnectionFactory connection)
     {
         _idGenerator = idGenerator;
-        _nameGenerator = nameGenerator;
         _mapper = new CallbackMapper();
         _serializer = serializer;
         _channel = connection.GetConnection().CreateModel();
@@ -46,27 +42,6 @@ internal class RabbitMQPublisher : IRabbitMQPublisher
 
     private void HandleResponseReceived(BasicDeliverEventArgs args)
     {
-        var incomingId = args.BasicProperties.CorrelationId;
-        Console.WriteLine($"[DEBUG] Пришел ответ с ID: {incomingId}");
-
-        // Проверяем, есть ли такой ключ в нашем словаре
-        if (_mapper.ContainsKey(incomingId))
-        {
-            Console.WriteLine("[SUCCESS] Ключ НАЙДЕН в Mapper! Извлекаем...");
-        }
-        else
-        {
-            // !!! Если вы видите это сообщение, значит у вас проблема "Чужого ответа" !!!
-            Console.WriteLine($"[FAIL] Ключ НЕ НАЙДЕН в Mapper. В словаре сейчас ключей: {_mapper.Count}");
-
-            // Вывод всех ключей, которые есть (чтобы сравнить)
-            foreach (var key in _mapper.Keys)
-            {
-                Console.WriteLine($"   -> Ждем ID: {key}");
-            }
-            return;
-        }
-
         if (!_mapper.Remove(args.BasicProperties.CorrelationId, out var tcs))
         {
             return;
@@ -76,8 +51,7 @@ internal class RabbitMQPublisher : IRabbitMQPublisher
 
     private string DeclareResponseQueue()
     {
-        var queueName = _channel.QueueDeclare().QueueName;
-        return queueName;
+        return _channel.QueueDeclare().QueueName;
     }
 
     public void Publish<T>(T message, IModel channel, PublishArguments arguments)
@@ -104,23 +78,14 @@ internal class RabbitMQPublisher : IRabbitMQPublisher
             RoutingKey = arguments.RoutingKey,
             Properties = properties
         });
-        var response = await WaitForResponseAsync<TResponse?>(correlationId, cancellationToken);
-        return response;
+
+        return await WaitForResponseAsync<TResponse?>(correlationId, cancellationToken);
     }
 
     private async Task<TResponse?> WaitForResponseAsync<TResponse>(string correlationId, CancellationToken cancellationToken)
     {
         var tcs = new TaskCompletionSource<byte[]>();
-        bool isAdded = _mapper.TryAdd(correlationId, tcs);
-
-        if (isAdded)
-        {
-            Console.WriteLine($"[DEBUG] ID добавлен в Mapper: {correlationId}");
-        }
-        else
-        {
-            Console.WriteLine($"[ERROR] Не удалось добавить ID в Mapper! Дубликат?: {correlationId}");
-        }
+        _mapper.TryAdd(correlationId, tcs);
         cancellationToken.Register(() => _mapper.Remove(correlationId));
         var responseData = await tcs.Task;
 

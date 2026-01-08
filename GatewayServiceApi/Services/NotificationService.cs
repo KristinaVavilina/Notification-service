@@ -31,7 +31,7 @@ public class NotificationService : INotificationService
             Metadata = dto.Metadata,
             Recipient = dto.Recipient
         });
-        await _messageQueueService.SendNotificationAsync(new SendNotificationRequest
+        var result = await _messageQueueService.SendNotificationAsync(new SendNotificationRequest
         {
             Id = id,
             ChannelType = dto.ChannelType,
@@ -40,6 +40,7 @@ public class NotificationService : INotificationService
             Subject = dto.Subject,
             Metadata = dto.Metadata
         });
+
         return id;
     }
 }

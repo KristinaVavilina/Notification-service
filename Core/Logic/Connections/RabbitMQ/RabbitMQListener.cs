@@ -1,5 +1,4 @@
-﻿using Core.Logic.Connections.RabbitMQ.Generators.QueueName;
-using Core.Logic.Connections.RabbitMQ.Interfaces;
+﻿using Core.Logic.Connections.RabbitMQ.Interfaces;
 using Core.Logic.Serialization.Interfaces;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
@@ -56,7 +55,6 @@ internal class RabbitMQListener : IRabbitMQListener
         var response = await handler(request);
         var properties = _channel.CreateBasicProperties();
         properties.CorrelationId = args.BasicProperties.CorrelationId;
-        Console.WriteLine(args.BasicProperties.CorrelationId);
         _publisher.Publish(response, _channel, new Models.PublishArguments()
         {
             ExchangeName = "",

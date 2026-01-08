@@ -15,10 +15,10 @@ public class SmtpEmailService : IEmailService
 
     public async Task SendEmailAsync(string to, string subject, string body)
     {
-        var host = _configuration["Smtp:Host"];
-        var port = int.Parse(_configuration["Smtp:Port"]);
-        var username = _configuration["Smtp:Username"];
-        var password = _configuration["Smtp:Password"];
+        var host = _configuration.GetValue<string>("Smtp:Host");
+        var port = _configuration.GetValue<int>("Smtp:Port");
+        var username = _configuration.GetValue<string>("Smtp:Username");
+        var password = _configuration.GetValue<string>("Smtp:Password");
 
         using var client = new SmtpClient(host, port);
         client.EnableSsl = true;
