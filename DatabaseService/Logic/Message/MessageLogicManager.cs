@@ -50,6 +50,13 @@ internal class MessageLogicManager : IMessageLogicManager
 
     public async Task UpdateStatusAsync(MessageStatusLogic logic)
     {
+        var statusHistory = await GetStatusHistoryAsync(logic.MessageId);
+
+        if (!statusHistory.Entries.Any(it => it.Status == logic.Status))
+        {
+            return;
+        }
+
         var messageId = await _messageRepository.AddStatusAsync(new MessageStatusDal
         {
             MessageId = logic.MessageId,
