@@ -1,3 +1,9 @@
+using Core.Logic.Connections.RabbitMQ;
+using EmailNotificationApi.Services;
+using MessageQueueConnectionLib;
+using SMSNotificationApi.Interfaces;
+using SMSNotificationApi.Listeners.RabbitMQ;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -6,6 +12,12 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddRabbitMQServices();
+builder.Services.AddMessageQueueConnectionLib();
+
+builder.Services.AddScoped<ISmsService, SmsService>();
+builder.Services.AddHostedService<NotificationRabbitMQListener>();
 
 var app = builder.Build();
 
