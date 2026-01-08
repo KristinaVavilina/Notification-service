@@ -2,8 +2,7 @@
 
 public enum MessageStatus
 {
-    Pending,
-    Processing,
+    Initialized,
     Sent,
     Retrying,
     Failed

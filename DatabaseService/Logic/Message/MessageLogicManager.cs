@@ -40,6 +40,11 @@ internal class MessageLogicManager : IMessageLogicManager
             })
             .ToList()
         });
+        await UpdateStatusAsync(new MessageStatusLogic
+        {
+            MessageId = logic.Id,
+            Status = MessageStatus.Initialized
+        });
         return logic.Id;
     }
 

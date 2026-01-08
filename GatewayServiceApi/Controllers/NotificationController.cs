@@ -17,9 +17,13 @@ public class NotificationController : ControllerBase
 
     [HttpPost]
     [Route("publish")]
+    [ProducesResponseType(typeof(NotificationResponseDto), 200)]
     public async Task<IActionResult> PostNotification([FromBody] NotificationDto dto)
     {
-        await _service.PublishMessageAsync(dto);
-        return Ok();
+        var id = await _service.PublishMessageAsync(dto);
+        return Ok(new NotificationResponseDto
+        {
+            Id = id
+        });
     }
 }
