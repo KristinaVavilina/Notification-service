@@ -16,6 +16,7 @@ public class NotificationService : INotificationService
     private const string RetryCountKey = "RetryCount";
     private const string TimeOutKey = "RetryTimeout_sec";
 
+    private readonly ILogger<NotificationService> _logger;
     private readonly IDatabaseConnectionService _databaseService;
     private readonly IMessageQueueConnectionService _messageQueueService;
     private readonly AsyncRetryPolicy<SendNotificationResponse> _retryPolicy;
@@ -23,8 +24,10 @@ public class NotificationService : INotificationService
     public NotificationService(
         IDatabaseConnectionService databaseService,
         IMessageQueueConnectionService messageQueueService,
-        IConfiguration configuration)
+        IConfiguration configuration,
+        ILogger<NotificationService> logger)
     {
+        _logger = logger;
         _databaseService = databaseService;
         _messageQueueService = messageQueueService;
 
@@ -40,7 +43,7 @@ public class NotificationService : INotificationService
             timeout,
         onRetry: async (result, timespan, retry, context) =>
         {
-            // логирование
+            _logger.LogInformation($"Retrying sending message {result.Result.MessageId}. Error message: {result.Result.ErrorMessage}");
             await _databaseService.UpdateStatusAsync(new UpdateStatusRequest
             {
                 Id = result.Result.MessageId,
@@ -72,15 +75,20 @@ public class NotificationService : INotificationService
             Metadata = dto.Metadata
         };
 
-        var response = await _retryPolicy.ExecuteAsync(() =>
-            _messageQueueService.SendNotificationAsync(request));
+        var response = await _retryPolicy.ExecuteAsync(async () =>
+        {
+            _logger.LogInformation($"Queueing Message Id {request.Id}");
+            return await _messageQueueService.SendNotificationAsync(request);
+        });
 
         if (response.IsSuccess)
         {
+            _logger.LogInformation($"Message Id {request.Id} sent successfuly");
             await UpdateStatus(id, MessageStatus.Sent);
         }
         else
         {
+            _logger.LogInformation($"Message Id {request.Id} sending failed. Error message: {response.ErrorMessage}");
             await UpdateStatus(id, MessageStatus.Failed);
         }
 

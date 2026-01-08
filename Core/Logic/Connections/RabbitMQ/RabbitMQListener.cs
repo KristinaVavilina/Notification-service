@@ -1,5 +1,6 @@
 ﻿using Core.Logic.Connections.RabbitMQ.Interfaces;
 using Core.Logic.Serialization.Interfaces;
+using Microsoft.Extensions.Logging;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 
@@ -11,14 +12,17 @@ internal class RabbitMQListener : IRabbitMQListener
     private readonly IRabbitMQPublisher _publisher;
     private readonly IMessageSerializer _serializer;
     private IModel _channel;
+    private readonly ILogger<RabbitMQListener> _logger;
 
     public RabbitMQListener(IRabbitMQPublisher publisher,
         IRabbitMQConnectionFactory connection,
-        IMessageSerializer serializer)
+        IMessageSerializer serializer,
+        ILogger<RabbitMQListener> logger)
     {
         _publisher = publisher;
         _connection = connection;
         _serializer = serializer;
+        _logger = logger;
     }
 
     public void StartListening<TRequest, TResponse>(string queueName, Func<TRequest, Task<TResponse>> handler)
@@ -36,7 +40,7 @@ internal class RabbitMQListener : IRabbitMQListener
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error processing message: {ex.Message}");
+                _logger.Log(LogLevel.Error, $"Error processing message: {ex.Message}");
                 _channel.BasicAck(args.DeliveryTag, multiple: false);
             }
         };
