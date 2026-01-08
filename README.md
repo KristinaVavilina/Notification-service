@@ -38,3 +38,65 @@
 - Логирование: ELK Stack (Elasticsearch, Logstash, Kibana).
 
 ## 🚀 Запуск проекта
+
+### 1. Клонирование репозитория
+```bash
+git clone https://github.com/KristinaVavilina/Notification-service.git
+cd Notification-service
+```
+
+### 2. Запуск приложения
+
+
+### 4. Открытие Swagger UI
+
+### 5. Отправка запросов
+Выберите метод POST в Swagger UI, нажмите кнопку Try it out и вставьте тело запроса в поле Request body.
+Система поддерживает 4 типа каналов, которые указываются в поле "channelType": email, sms, push, telegram.
+Шаблоны JSON для каждого варианта:
+
+#### 📧 Email
+```json
+{
+  "channelType": "email",
+  "recipient": "example@gmail.com",
+  "subject": "Тема письма",
+  "content": "Текст сообщения...",
+  "metadata": {}
+}
+```
+
+#### 📱 SMS
+```json
+{
+  "channelType": "sms",
+  "recipient": "+79990000000",
+  "subject": "SMS",
+  "content": "Ваш код...",
+  "metadata": {}
+}
+```
+
+#### 🔔 Push-уведомление
+```json
+{
+  "channelType": "push",
+  "recipient": "device_token_or_phone",
+  "subject": "Заголовок Push",
+  "content": "Текст уведомления",
+  "metadata": {}
+}
+```
+
+#### ✈️ Telegram
+```json
+{
+  "channelType": "telegram",
+  "recipient": "telegram_id",
+  "subject": "Telegram Message",
+  "content": "Текст сообщения...",
+  "metadata": {}
+}
+```
+
+## 📜 Логирование
