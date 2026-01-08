@@ -3,6 +3,7 @@ using MessageQueueConnectionLib;
 using MessangerNotificationApi.Interfaces;
 using MessangerNotificationApi.Listeners.RabbitMQ;
 using MessangerNotificationApi.Services;
+using MonitoringConnectionLib;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,10 +17,15 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddRabbitMQServices();
 builder.Services.AddMessageQueueConnectionLib();
 
+builder.AddMonitoringMetrics();
+builder.AddLogging();
+
 builder.Services.AddHttpClient<IMessangerService, MessangerService>();
 builder.Services.AddHostedService<NotificationRabbitMQListener>();
 
 var app = builder.Build();
+
+app.UseMonitoringEndpoints();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

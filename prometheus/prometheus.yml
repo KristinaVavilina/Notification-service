@@ -1,5 +1,5 @@
 scrape_configs:
-  - job_name: 'GatewayServiceApi'
+  - job_name: 'NotificationService'
     scrape_interval: 5s # Poll every 5 seconds for a more responsive demo.
     static_configs:
-      - targets: ["gatewayserviceapi:8080"]
+      - targets: ["gatewayserviceapi:8080", "emailnotificationapi:8080", "messangernotificationapi:8080", "pushnotificationapi:8080", "smsnotificationapi:8080"]

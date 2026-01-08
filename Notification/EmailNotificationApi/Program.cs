@@ -3,6 +3,7 @@ using EmailNotificationApi.Interfaces;
 using EmailNotificationApi.Listeners.RabbitMQ;
 using EmailNotificationApi.Services;
 using MessageQueueConnectionLib;
+using MonitoringConnectionLib;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,7 +20,12 @@ builder.Services.AddMessageQueueConnectionLib();
 builder.Services.AddTransient<IEmailService, SmtpEmailService>();
 builder.Services.AddHostedService<NotificationRabbitMQListener>();
 
+builder.AddMonitoringMetrics();
+builder.AddLogging();
+
 var app = builder.Build();
+
+app.UseMonitoringEndpoints();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

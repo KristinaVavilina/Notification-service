@@ -1,4 +1,5 @@
-﻿using GatewayServiceApi.Interfaces;
+﻿using GatewayServiceApi.Filters;
+using GatewayServiceApi.Interfaces;
 using GatewayServiceApi.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,6 +18,8 @@ public class NotificationController : ControllerBase
 
     [HttpPost]
     [Route("publish")]
+    [InvalidChannelExceptionFilter]
+    [NotificationServiceFailedExceptionFilter]
     [ProducesResponseType(typeof(NotificationResponseDto), 200)]
     public async Task<IActionResult> PostNotification([FromBody] NotificationDto dto)
     {

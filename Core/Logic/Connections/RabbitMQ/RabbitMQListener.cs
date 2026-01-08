@@ -40,7 +40,7 @@ internal class RabbitMQListener : IRabbitMQListener
             }
             catch (Exception ex)
             {
-                _logger.Log(LogLevel.Error, $"Error processing message: {ex.Message}");
+                _logger.LogError($"Error processing message: {ex.Message}");
                 _channel.BasicAck(args.DeliveryTag, multiple: false);
             }
         };

@@ -52,7 +52,7 @@ internal class MessageLogicManager : IMessageLogicManager
     {
         var statusHistory = await GetStatusHistoryAsync(logic.MessageId);
 
-        if (!statusHistory.Entries.Any(it => it.Status == logic.Status))
+        if (statusHistory.Entries.Any(it => it.Status == logic.Status))
         {
             return;
         }

@@ -23,6 +23,7 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\..\Libs\MessageQueueConnectionLib\MessageQueueConnectionLib.csproj" />
+		<ProjectReference Include="..\..\Libs\MonitoringConnectionLib\MonitoringConnectionLib.csproj" />
 	</ItemGroup>
 
 </Project>

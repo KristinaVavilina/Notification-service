@@ -8,15 +8,18 @@ public class NotificationRabbitMQListener : BackgroundService
     private IMessageQueueConnectionService _messageQueueConnectionService;
     private readonly IServiceProvider _serviceProvider;
     private readonly IConfiguration _configuration;
+    private readonly ILogger<NotificationRabbitMQListener> _logger;
 
     public NotificationRabbitMQListener(
         IMessageQueueConnectionService messageQueueConnectionService,
         IServiceProvider serviceProvider,
-        IConfiguration configuration)
+        IConfiguration configuration,
+        ILogger<NotificationRabbitMQListener> logger)
     {
         _messageQueueConnectionService = messageQueueConnectionService;
         _serviceProvider = serviceProvider;
         _configuration = configuration;
+        _logger = logger;
     }
 
     private async Task<SendNotificationResponse> HandleNotificationAsync(SendNotificationRequest messageDto)
@@ -25,7 +28,7 @@ public class NotificationRabbitMQListener : BackgroundService
         {
             var emailService = scope.ServiceProvider.GetRequiredService<IEmailService>();
 
-            Console.WriteLine($"Отправка письма для: {messageDto.Recipient}...");
+            _logger.LogInformation($"Отправка письма для: {messageDto.Recipient}...");
 
             try
             {
@@ -35,12 +38,12 @@ public class NotificationRabbitMQListener : BackgroundService
                     messageDto.Content
                 );
 
-                Console.WriteLine("Письмо успешно отправлено!");
+                _logger.LogInformation("Письмо успешно отправлено!");
                 return SendNotificationResponse.Success(messageDto.Id);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Ошибка отправки: {ex.Message}");
+                _logger.LogInformation($"Ошибка отправки: {ex.Message}");
                 return SendNotificationResponse.Failure(ex.Message, messageDto.Id);
             }
         }
