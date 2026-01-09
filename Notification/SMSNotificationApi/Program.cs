@@ -1,3 +1,10 @@
+using Core.Logic.Connections.RabbitMQ;
+using EmailNotificationApi.Services;
+using MessageQueueConnectionLib;
+using SMSNotificationApi.Interfaces;
+using SMSNotificationApi.Listeners.RabbitMQ;
+using MonitoringConnectionLib;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -7,7 +14,19 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddRabbitMQServices();
+builder.Services.AddMessageQueueConnectionLib();
+
+builder.Services.AddScoped<ISmsService, SmsService>();
+builder.Services.AddHostedService<NotificationRabbitMQListener>();
+
+builder.AddMonitoringMetrics();
+builder.AddLogging();
+
+
 var app = builder.Build();
+
+app.UseMonitoringEndpoints();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

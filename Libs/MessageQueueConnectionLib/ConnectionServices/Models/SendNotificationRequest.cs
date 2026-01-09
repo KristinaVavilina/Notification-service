@@ -1,4 +1,4 @@
-﻿public class MessageDto
+﻿public class SendNotificationRequest
 {
     public Guid Id { get; init; } = Guid.NewGuid();
 

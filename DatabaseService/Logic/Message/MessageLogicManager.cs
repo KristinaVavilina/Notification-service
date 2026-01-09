@@ -40,11 +40,23 @@ internal class MessageLogicManager : IMessageLogicManager
             })
             .ToList()
         });
+        await UpdateStatusAsync(new MessageStatusLogic
+        {
+            MessageId = logic.Id,
+            Status = MessageStatus.Initialized
+        });
         return logic.Id;
     }
 
     public async Task UpdateStatusAsync(MessageStatusLogic logic)
     {
+        var statusHistory = await GetStatusHistoryAsync(logic.MessageId);
+
+        if (statusHistory.Entries.Any(it => it.Status == logic.Status))
+        {
+            return;
+        }
+
         var messageId = await _messageRepository.AddStatusAsync(new MessageStatusDal
         {
             MessageId = logic.MessageId,
